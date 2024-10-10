@@ -1,0 +1,37 @@
+
+services:
+  web:
+      build: ./backend_rds
+      env_file: 
+      - .env
+  backend_rds:
+    build:
+      context: ./backend_rds
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis_db
+
+  backend_redis:
+    build:
+      context: ./backend_redis
+    command: python manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis_db
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend_rds
+      - backend_redis
+
+  redis_db:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
